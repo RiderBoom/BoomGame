@@ -23,25 +23,28 @@ function RemoveOwnedVehicle(plate)
 end
 
 MySQL.ready(function()
-	Categories     = MySQL.Sync.fetchAll('SELECT * FROM vehicle_categories')
-	local vehicles = MySQL.Sync.fetchAll('SELECT * FROM vehicles')
+	MySQL.Async.fetchAll('SELECT * FROM vehicle_categories', {}, function(categories)
+		Categories = categories or {}
+		MySQL.Async.fetchAll('SELECT * FROM vehicles', {}, function(vehicles)
+			vehicles = vehicles or {}
+			for i=1, #vehicles, 1 do
+				local vehicle = vehicles[i]
 
-	for i=1, #vehicles, 1 do
-		local vehicle = vehicles[i]
+				for j=1, #Categories, 1 do
+					if Categories[j].name == vehicle.category then
+						vehicle.categoryLabel = Categories[j].label
+						break
+					end
+				end
 
-		for j=1, #Categories, 1 do
-			if Categories[j].name == vehicle.category then
-				vehicle.categoryLabel = Categories[j].label
-				break
+				table.insert(Vehicles, vehicle)
 			end
-		end
 
-		table.insert(Vehicles, vehicle)
-	end
-
-	-- send information after db has loaded, making sure everyone gets vehicle information
-	TriggerClientEvent('esx_vehicleshop:sendCategories', -1, Categories)
-	TriggerClientEvent('esx_vehicleshop:sendVehicles', -1, Vehicles)
+			-- send information after db has loaded, making sure everyone gets vehicle information
+			TriggerClientEvent('esx_vehicleshop:sendCategories', -1, Categories)
+			TriggerClientEvent('esx_vehicleshop:sendVehicles', -1, Vehicles)
+		end)
+	end)
 end)
 
 RegisterServerEvent('esx_vehicleshop:setVehicleOwned')
@@ -162,7 +165,7 @@ RegisterCommand('transfervehicle', function(source, args)
 					data = {}
 						TriggerClientEvent('chatMessage', other, "^4Vehicle with the plate ^*^1" .. plate .. "^r^4was transfered to you by: ^*^2" .. myName)
 			 
-						MySQL.Sync.execute("UPDATE owned_vehicles SET owner=@owner WHERE plate=@plate", {['@owner'] = targetSteam, ['@plate'] = plate})
+						MySQL.Async.execute("UPDATE owned_vehicles SET owner=@owner WHERE plate=@plate", {['@owner'] = targetSteam, ['@plate'] = plate})
 						TriggerClientEvent('chatMessage', source, "^4You have ^*^3transfered^0^4 your vehicle with the plate ^*^1" .. plate .. "\" ^r^4to ^*^2".. targetSteamName)
 				else
 					print("Did not transfer")
@@ -566,7 +569,7 @@ function PayRent(d, h, m)
 				xPlayer.removeAccountMoney('bank', result[i].rent_price)
 				TriggerClientEvent('esx:showNotification', xPlayer.source, _U('paid_rental', ESX.Math.GroupDigits(result[i].rent_price)))
 			else -- pay rent either way
-				MySQL.Sync.execute('UPDATE users SET bank = bank - @bank WHERE identifier = @identifier',
+				MySQL.Async.execute('UPDATE users SET bank = bank - @bank WHERE identifier = @identifier',
 				{
 					['@bank']       = result[i].rent_price,
 					['@identifier'] = result[i].owner

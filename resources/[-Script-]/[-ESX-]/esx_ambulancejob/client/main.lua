@@ -92,9 +92,8 @@ end)
 Citizen.CreateThread(function()
 	
 	while true do
-		Citizen.Wait(0)
-		
 		if IsDead then
+			Citizen.Wait(0)
 			DisableAllControlActions(0)
 
 			EnableControlAction(0, 1, true)

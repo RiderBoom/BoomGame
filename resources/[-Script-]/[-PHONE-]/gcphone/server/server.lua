@@ -31,7 +31,7 @@ AddEventHandler('esx:onPlayerSpawn', function()
 end)
 
 function getNumberPhone(a)
-    local b=MySQL.Sync.fetchScalar("SELECT users.phone_number FROM users WHERE users.identifier = @identifier",{["@identifier"]=a})
+    local b=MySQL.scalar.await("SELECT users.phone_number FROM users WHERE users.identifier = @identifier",{["@identifier"]=a})
     if b~=nil then 
         return b 
     end;
@@ -67,10 +67,10 @@ function getSourceFromIdentifier(identifier, cb)
 end
 
 function getIdentifierByPhoneNumber(phone_number) 
-    local result = MySQL.Sync.fetchAll("SELECT users.identifier FROM users WHERE users.phone_number = @phone_number LIMIT 1", {
+    local result = MySQL.query.await("SELECT users.identifier FROM users WHERE users.phone_number = @phone_number LIMIT 1", {
         ['@phone_number'] = phone_number
     })
-    if result[1] ~= nil then
+    if result and result[1] ~= nil then
         return result[1].identifier
     end
     return nil
@@ -148,10 +148,10 @@ end
 --  Contacts
 --====================================================================================
 function getContacts(identifier)
-    local result = MySQL.Sync.fetchAll("SELECT phone_users_contacts.* FROM phone_users_contacts WHERE phone_users_contacts.identifier = @identifier", {
+    local result = MySQL.query.await("SELECT phone_users_contacts.* FROM phone_users_contacts WHERE phone_users_contacts.identifier = @identifier", {
         ['@identifier'] = identifier
     })
-    return result
+    return result or {}
 end
 
 function addContact(source, identifier, number, display)
@@ -178,15 +178,16 @@ end
 
 function deleteContact(source, identifier, id)
     local sourcePlayer = tonumber(source)
-    MySQL.Sync.execute("DELETE FROM phone_users_contacts WHERE `id` = @id", {
+    MySQL.Async.execute("DELETE FROM phone_users_contacts WHERE `id` = @id", {
         ['@identifier'] = identifier,
         ['@id'] = id,
-    })
-    notifyContactChange(sourcePlayer, identifier)
+    }, function()
+        notifyContactChange(sourcePlayer, identifier)
+    end)
 end
 
 function deleteAllContact(identifier)
-    MySQL.Sync.execute("DELETE FROM phone_users_contacts WHERE `identifier` = @identifier", {
+    MySQL.Async.execute("DELETE FROM phone_users_contacts WHERE `identifier` = @identifier", {
         ['@identifier'] = identifier
     })
 end
@@ -244,10 +245,10 @@ end)
 --  Messages
 --====================================================================================
 function getMessages(identifier)
-    local result = MySQL.Sync.fetchAll("SELECT phone_messages.*, users.phone_number FROM phone_messages LEFT JOIN users ON users.identifier = @identifier WHERE phone_messages.receiver = users.phone_number", {
+    local result = MySQL.query.await("SELECT phone_messages.*, users.phone_number FROM phone_messages LEFT JOIN users ON users.identifier = @identifier WHERE phone_messages.receiver = users.phone_number", {
          ['@identifier'] = identifier
     })
-    return result
+    return result or {}
 end
 
 RegisterServerEvent('gcPhone:_internalAddMessage')
@@ -366,10 +367,10 @@ local PhoneFixeInfo = {}
 local lastIndexCall = 10
 
 function getHistoriqueCall(num)
-    local result = MySQL.Sync.fetchAll("SELECT * FROM phone_calls WHERE phone_calls.owner = @num ORDER BY time DESC LIMIT 30", {
+    local result = MySQL.query.await("SELECT * FROM phone_calls WHERE phone_calls.owner = @num ORDER BY time DESC LIMIT 30", {
         ['@num'] = num
     })
-    return result
+    return result or {}
 end
 
 function sendHistoriqueCall(src, num) 

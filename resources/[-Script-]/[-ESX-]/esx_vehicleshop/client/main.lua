@@ -970,51 +970,52 @@ end)
 -- Display markers
 Citizen.CreateThread(function ()
 	while true do
-		Citizen.Wait(0)
-		stk = true
+		local sleep = 1000
 		local coords = GetEntityCoords(PlayerPedId())
 
 		for k,v in pairs(Config.Zones) do
-			if(v.Type ~= -1 and GetDistanceBetweenCoords(coords, v.Pos.x, v.Pos.y, v.Pos.z, true) < Config.DrawDistance) then stk = false
+			if(v.Type ~= -1 and GetDistanceBetweenCoords(coords, v.Pos.x, v.Pos.y, v.Pos.z, true) < Config.DrawDistance) then
+				sleep = 0
 				DrawMarker(v.Type, v.Pos.x, v.Pos.y, v.Pos.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, v.Size.x, v.Size.y, v.Size.z, Config.MarkerColor.r, Config.MarkerColor.g, Config.MarkerColor.b, 100, false, true, 2, false, false, false, false)
 			end
 		end
-		if stk then
-            Citizen.Wait(500)
-        end
+		Citizen.Wait(sleep)
 	end
 end)
 
 -- Enter / Exit marker events
 Citizen.CreateThread(function ()
 	while true do
-		Citizen.Wait(0)
-		stk = true
+		local sleep = 1000
 		local coords      = GetEntityCoords(PlayerPedId())
 		local isInMarker  = false
 		local currentZone = nil
 
 		for k,v in pairs(Config.Zones) do
-			if(GetDistanceBetweenCoords(coords, v.Pos.x, v.Pos.y, v.Pos.z, true) < v.Size.x) then stk = false
-				isInMarker  = true
-				currentZone = k
+			if(GetDistanceBetweenCoords(coords, v.Pos.x, v.Pos.y, v.Pos.z, true) < Config.DrawDistance) then
+				sleep = 500
+				if(GetDistanceBetweenCoords(coords, v.Pos.x, v.Pos.y, v.Pos.z, true) < v.Size.x) then
+					sleep = 0
+					isInMarker  = true
+					currentZone = k
+				end
 			end
 		end
 
-		if (isInMarker and not HasAlreadyEnteredMarker) or (isInMarker and LastZone ~= currentZone) then stk = false
+		if (isInMarker and not HasAlreadyEnteredMarker) or (isInMarker and LastZone ~= currentZone) then
+			sleep = 0
 			HasAlreadyEnteredMarker = true
 			LastZone                = currentZone
 			TriggerEvent('esx_vehicleshop:hasEnteredMarker', currentZone)
 		end
 
-		if not isInMarker and HasAlreadyEnteredMarker then stk = false
+		if not isInMarker and HasAlreadyEnteredMarker then
+			sleep = 0
 			HasAlreadyEnteredMarker = false
 			TriggerEvent('esx_vehicleshop:hasExitedMarker', LastZone)
 		end
 		
-		if stk then
-            Citizen.Wait(20)
-        end
+		Citizen.Wait(sleep)
 	end
 end)
 

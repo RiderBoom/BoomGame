@@ -464,43 +464,43 @@ ESX.RegisterServerCallback('esx_counciljob:getOtherPlayerData', function(source,
 
 		local xPlayer = ESX.GetPlayerFromId(target)
 
-		local result = MySQL.Sync.fetchAll('SELECT firstname, lastname, sex, dateofbirth, height FROM users WHERE identifier = @identifier', {
+		MySQL.Async.fetchAll('SELECT firstname, lastname, sex, dateofbirth, height FROM users WHERE identifier = @identifier', {
 			['@identifier'] = xPlayer.identifier
-		})
+		}, function(result)
+			local firstname = result[1] and result[1].firstname or ''
+			local lastname  = result[1] and result[1].lastname or ''
+			local sex       = result[1] and result[1].sex or ''
+			local dob       = result[1] and result[1].dateofbirth or ''
+			local height    = result[1] and result[1].height or ''
 
-		local firstname = result[1].firstname
-		local lastname  = result[1].lastname
-		local sex       = result[1].sex
-		local dob       = result[1].dateofbirth
-		local height    = result[1].height
+			local data = {
+				name      = GetPlayerName(target),
+				job       = xPlayer.job,
+				inventory = xPlayer.inventory,
+				accounts  = xPlayer.accounts,
+				weapons   = xPlayer.loadout,
+				firstname = firstname,
+				lastname  = lastname,
+				sex       = sex,
+				dob       = dob,
+				height    = height
+			}
 
-		local data = {
-			name      = GetPlayerName(target),
-			job       = xPlayer.job,
-			inventory = xPlayer.inventory,
-			accounts  = xPlayer.accounts,
-			weapons   = xPlayer.loadout,
-			firstname = firstname,
-			lastname  = lastname,
-			sex       = sex,
-			dob       = dob,
-			height    = height
-		}
+			TriggerEvent('esx_status:getStatus', target, 'drunk', function(status)
+				if status ~= nil then
+					data.drunk = math.floor(status.percent)
+				end
+			end)
 
-		TriggerEvent('esx_status:getStatus', target, 'drunk', function(status)
-			if status ~= nil then
-				data.drunk = math.floor(status.percent)
+			if Config.EnableLicenses then
+				TriggerEvent('esx_license:getLicenses', target, function(licenses)
+					data.licenses = licenses
+					cb(data)
+				end)
+			else
+				cb(data)
 			end
 		end)
-
-		if Config.EnableLicenses then
-			TriggerEvent('esx_license:getLicenses', target, function(licenses)
-				data.licenses = licenses
-				cb(data)
-			end)
-		else
-			cb(data)
-		end
 
 	else
 
@@ -826,13 +826,13 @@ ESX.RegisterServerCallback('esx_counciljob:storeNearbyVehicle', function(source,
 	local foundPlate, foundNum
 
 	for k,v in ipairs(nearbyVehicles) do
-		local result = MySQL.Sync.fetchAll('SELECT plate FROM owned_vehicles WHERE owner = @owner AND plate = @plate AND job = @job', {
+		local result = MySQL.query.await('SELECT plate FROM owned_vehicles WHERE owner = @owner AND plate = @plate AND job = @job', {
 			['@owner'] = xPlayer.identifier,
 			['@plate'] = v.plate,
 			['@job'] = xPlayer.job.name
 		})
 
-		if result[1] then
+		if result and result[1] then
 			foundPlate, foundNum = result[1].plate, k
 			break
 		end
