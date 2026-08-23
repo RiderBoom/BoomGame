@@ -1,0 +1,22 @@
+[
+  {
+    "name": "_Crypto",
+    "master": true,
+    "password_hash": "$2a$11$MCecHdsNFQEcwdWG9HSv8uD7.bvm7NN3Udj/tmtlAHqS5XYn8JCVq",
+    "providers": {
+      "citizenfx": {
+        "id": "_Crypto",
+        "identifier": "fivem:13211202",
+        "data": {
+          "sub": "90cd9e487f5edda7edb098177005996a",
+          "nameid": "https://forum.cfx.re/internal/user/13211202",
+          "name": "_Crypto",
+          "picture": "https://forum.cfx.re/user_avatar/forum.cfx.re/_crypto/256/4136577_2.png",
+          "profile": "https://forum.cfx.re/u/_Crypto"
+        }
+      }
+    },
+    "permissions": [],
+    "$schema": 1
+  }
+]

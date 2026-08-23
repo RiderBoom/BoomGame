@@ -1,0 +1,11 @@
+# Project: BoomGame (FiveM Server)
+
+## Server Framework & Stack
+- Framework: QBCore / ESX Legacy (แก้ไขตามที่ใช้งานจริง)
+- Database Library: oxmysql
+- Script Languages: Lua 5.4, JavaScript/TypeScript, HTML/CSS (NUI)
+
+## Guidelines for AI Agent
+1. Always use asynchronous exports with `oxmysql` for database queries.
+2. Avoid tight `Citizen.Wait(0)` loops in client scripts; optimize using event-driven logic or interval checks to keep Resmon low.
+3. Keep configurable variables inside `config.lua`.

@@ -1,0 +1,163 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&family=Prompt:wght@400;700&display=swap');
+
+* {
+    font-family: 'Poppins', 'Prompt', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    color: #ffffff;
+}
+
+/* Main Container */
+.main-contains {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    top: 50%;
+    left: 50%;
+    width: 25vw;
+    background-color: rgba(22, 22, 22, 0.956);
+    border-radius: 10px;
+    padding: 17px;
+}
+
+/* Header Title */
+.header-title {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.header-title iconify-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: #ffffffc6;
+    width: 40px;
+    height: 40px;
+    padding-right: 10px;
+}
+
+.header-title span {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.header-title span p:nth-child(1) {
+    font-size: 10px;
+    font-weight: 500;
+    color: #ffffff63;
+}
+
+.header-title span p:nth-child(2) {
+    font-size: 16px;
+    font-weight: 500;
+    color: #ffffffe5;
+    margin-top: -4px;
+}
+
+/* Input Section */
+.main-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    width: 100%;
+    height: 40px;
+}
+
+.main-input iconify-icon {
+    position: absolute;
+    font-size: 20px;
+    right: 20px;
+    margin-top: 7px;
+}
+
+.main-contains input {
+    display: flex;
+    align-items: center;
+    color: #ffffffc4;
+    padding: 0 10px;
+    padding-right: 50px;
+    font-size: 12px;
+    width: 95%;
+    height: 100%;
+    border: solid 1px #252525;
+    background-color: rgba(22, 22, 22, 0.956);
+    border-radius: 8px;
+    margin-top: 10px;
+    outline: none;
+}
+
+/* Button Section */
+.main-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 85%;
+    height: 26px;
+    margin-top: 15px;
+    gap: 10px;
+}
+
+.main-button button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #ffffffdc;
+    height: 100%;
+    width: 100%;
+    border: none;
+    outline: none;
+    border-radius: 6px;
+    transition: 0.1s ease-in;
+}
+
+/* Button 1 Styles */
+.main-button button:nth-child(1) {
+    background: linear-gradient(171deg, #C31846 0%, #4F121A 100%);
+}
+
+.main-button button:nth-child(1):hover {
+    box-shadow: 0 0 0 3px #4f121a9a;
+}
+
+.main-button button:nth-child(1):active {
+    margin-bottom: 2px;
+}
+
+/* Button 2 Styles */
+.main-button button:nth-child(2) {
+    background: linear-gradient(59deg, rgb(28, 92, 126) 0%, rgb(74, 146, 175) 100%);
+}
+
+.main-button button:nth-child(2):hover {
+    box-shadow: 0 0 0 3px #0e49569f;
+}
+
+.main-button button:nth-child(2):active {
+    margin-bottom: 2px;
+}
+
+/* Icon Styles */
+.main-button iconify-icon {
+    font-size: 16px;
+    padding: 1px;
+    background-color: #0000002a;
+    position: absolute;
+    right: 5px;
+    border-radius: 5px;
+}
