@@ -749,7 +749,7 @@ end)
 
 function open_name()
 	while head_ do
-		Citizen.Wait(0)
+		local sleep = 1000
 		local ped = PlayerPedId()
 		local x1, y1, z1 = table.unpack( GetEntityCoords( ped, true ) )
 		for i,Player in ipairs(GetActivePlayers()) do
@@ -758,6 +758,7 @@ function open_name()
 				local x2, y2, z2 = table.unpack( GetEntityCoords( Ped, true ) )
 				local distance = math.floor(GetDistanceBetweenCoords(x1,  y1,  z1,  x2,  y2,  z2,  true))
 				if distance < Config.SettingDisplayOnlyAdmin['Distance'] then
+					sleep = 0
 					local localFPS = 1 / GetFrameTime()
 					local playerHead = GetPedBoneCoords(Ped, 12844, 0, 0, 0) + vector3(0, 0, 0.7) + (GetEntityVelocity(Ped) / localFPS)
 					local text = GetPlayerServerId(Player).." |  " .. GetPlayerName(Player)
@@ -791,6 +792,7 @@ function open_name()
 				end
 			end
 		end
+		Citizen.Wait(sleep)
 	end
 end
 

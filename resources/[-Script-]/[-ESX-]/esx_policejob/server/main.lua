@@ -526,13 +526,13 @@ ESX.RegisterServerCallback('esx_policejob:storeNearbyVehicle', function(source, 
 	local foundPlate, foundNum
 
 	for k,v in ipairs(nearbyVehicles) do
-		local result = MySQL.Sync.fetchAll('SELECT plate FROM owned_vehicles WHERE owner = @owner AND plate = @plate AND job = @job', {
+		local result = MySQL.query.await('SELECT plate FROM owned_vehicles WHERE owner = @owner AND plate = @plate AND job = @job', {
 			['@owner'] = xPlayer.identifier,
 			['@plate'] = v.plate,
 			['@job'] = xPlayer.job.name
 		})
 
-		if result[1] then
+		if result and result[1] then
 			foundPlate, foundNum = result[1].plate, k
 			break
 		end

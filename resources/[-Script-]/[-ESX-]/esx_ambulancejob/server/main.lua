@@ -262,13 +262,13 @@ ESX.RegisterServerCallback('esx_ambulancejob:storeNearbyVehicle', function(sourc
 	local foundPlate, foundNum
 
 	for k,v in ipairs(nearbyVehicles) do
-		local result = MySQL.Sync.fetchAll('SELECT plate FROM owned_vehicles WHERE owner = @owner AND plate = @plate AND job = @job', {
+		local result = MySQL.query.await('SELECT plate FROM owned_vehicles WHERE owner = @owner AND plate = @plate AND job = @job', {
 			['@owner'] = xPlayer.identifier,
 			['@plate'] = v.plate,
 			['@job'] = xPlayer.job.name
 		})
 
-		if result[1] then
+		if result and result[1] then
 			foundPlate, foundNum = result[1].plate, k
 			break
 		end
@@ -408,7 +408,7 @@ AddEventHandler('esx_ambulancejob:setDeathStatus', function(isDead)
 		return
 	end
 
-	MySQL.Sync.execute('UPDATE users SET is_dead = @isDead WHERE identifier = @identifier', {
+	MySQL.Async.execute('UPDATE users SET is_dead = @isDead WHERE identifier = @identifier', {
 		['@identifier'] = identifier,
 		['@isDead'] = isDead
 	})
@@ -467,37 +467,37 @@ ESX.RegisterServerCallback('esx_ambulancejob:getOtherPlayerData', function(sourc
 
 		local xPlayer = ESX.GetPlayerFromId(target)
 
-		local result = MySQL.Sync.fetchAll('SELECT firstname, lastname, sex, dateofbirth, height FROM users WHERE identifier = @identifier', {
+		MySQL.Async.fetchAll('SELECT firstname, lastname, sex, dateofbirth, height FROM users WHERE identifier = @identifier', {
 			['@identifier'] = xPlayer.identifier
-		})
+		}, function(result)
+			local firstname = result[1] and result[1].firstname or ''
+			local lastname  = result[1] and result[1].lastname or ''
+			local sex       = result[1] and result[1].sex or ''
+			local dob       = result[1] and result[1].dateofbirth or ''
+			local height    = result[1] and result[1].height or ''
 
-		local firstname = result[1].firstname
-		local lastname  = result[1].lastname
-		local sex       = result[1].sex
-		local dob       = result[1].dateofbirth
-		local height    = result[1].height
+			local data = {
+				name      = GetPlayerName(target),
+				job       = xPlayer.job,
+				inventory = xPlayer.inventory,
+				accounts  = xPlayer.accounts,
+				weapons   = xPlayer.loadout,
+				firstname = firstname,
+				lastname  = lastname,
+				sex       = sex,
+				dateofbirth = dob,
+				height    = height
+			}
 
-		local data = {
-			name      = GetPlayerName(target),
-			job       = xPlayer.job,
-			inventory = xPlayer.inventory,
-			accounts  = xPlayer.accounts,
-			weapons   = xPlayer.loadout,
-			firstname = firstname,
-			lastname  = lastname,
-			sex       = sex,
-			dob       = dob,
-			height    = height
-		}
-
-		if Config.EnableLicenses then
-			TriggerEvent('esx_license:getLicenses', target, function(licenses)
-				data.licenses = licenses
+			if Config.EnableLicenses then
+				TriggerEvent('esx_license:getLicenses', target, function(licenses)
+					data.licenses = licenses
+					cb(data)
+				end)
+			else
 				cb(data)
-			end)
-		else
-			cb(data)
-		end
+			end
+		end)
 
 	else
 
@@ -724,10 +724,12 @@ end
 
 local itemSQL = {}
 MySQL.ready(function()
-	AllItemsList = MySQL.Sync.fetchAll("SELECT * FROM `items`", {})
-	for k,v in pairs(AllItemsList) do
-		table.insert(itemSQL, v.name)
-	end
+	MySQL.Async.fetchAll("SELECT * FROM `items`", {}, function(result)
+		AllItemsList = result or {}
+		for k,v in pairs(AllItemsList) do
+			table.insert(itemSQL, v.name)
+		end
+	end)
 end)
 
 
