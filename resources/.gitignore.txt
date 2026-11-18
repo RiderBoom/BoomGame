@@ -1,9 +1,0 @@
-# ไม่ดึง Cache และ Logs ขึ้น Git
-cache/
-*.log
-crashdumps/
-
-# สำคัญ: ไม่เอา server.cfg ขึ้นเพื่อป้องกัน License Key หลุด
-server.cfg
-*.env
-credentials.json
