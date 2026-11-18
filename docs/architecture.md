@@ -1,4 +1,4 @@
-# Boomplay MVP architecture
+# BoomVerse MVP architecture
 
 The first release is a web catalog and session launcher. It should discover games, show session readiness, and hand off to a streaming provider without coupling the UI to one vendor.
 
